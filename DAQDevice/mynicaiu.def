@@ -1,0 +1,9 @@
+LIBRARY nicaiu.dll
+EXPORTS
+DAQmxStartTask@4
+DAQmxReadAnalogF64@36
+DAQmxGetExtendedErrorInfo@8
+DAQmxStopTask@4
+DAQmxClearTask@4
+DAQmxLoadTask@8
+DAQmxIsTaskDone@8
