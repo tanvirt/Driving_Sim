@@ -1,0 +1,56 @@
+texture road1 Road1.bmp
+texture road2 Road2.bmp
+texture road3 Road3.bmp
+texture grass grass2.jpg
+texture sky_full sky_full.png
+clearcolor 0 0 0
+enable textures
+color 1 1 1
+pushMatrix
+translate 0 -1 0
+	pushMatrix
+		translate 50 35 -100
+		bindtexture sky_full
+		rectangle 50 100 1 1
+	popMatrix
+	pushMatrix
+		translate -50 35 -100
+		bindtexture sky_full
+		rectangle 50 100 1 1
+	popMatrix
+	pushMatrix
+		translate 25 35 -100
+		bindtexture sky_full
+		rectangle 50 100 1 1
+	popMatrix
+	pushMatrix
+		translate -25 35 -100
+		bindtexture sky_full
+		rectangle 50 100 1 1
+	popMatrix
+	pushMatrix
+		translate 0 0 -50
+		rotate -90 1 0 0
+		bindtexture grass
+		rectangle 100 100 25 25
+	popMatrix
+	pushMatrix
+		translate -1 0 -50
+		rotate -90 1 0 0
+		bindtexture road1
+		rectangle 1 100 1 50
+	popMatrix
+	pushMatrix
+		translate 0 0 -50
+		rotate -90 1 0 0
+		bindtexture road2
+		rectangle 1 100 1 50
+	popMatrix
+	pushMatrix
+		translate 1 0 -50
+		rotate -90 1 0 0
+		bindtexture road3
+		rectangle 1 100 1 50
+	popMatrix
+popMatrix
+disable textures
