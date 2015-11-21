@@ -35,22 +35,22 @@ translate 0 -1 0
 		rectangle 100 100 25 25
 	popMatrix
 	pushMatrix
-		translate -1 0 -50
+		translate -3 0 -50
 		rotate -90 1 0 0
 		bindtexture road1
-		rectangle 1 100 1 50
+		rectangle 3 100 1 25
 	popMatrix
 	pushMatrix
 		translate 0 0 -50
 		rotate -90 1 0 0
 		bindtexture road2
-		rectangle 1 100 1 50
+		rectangle 3 100 1 25
 	popMatrix
 	pushMatrix
-		translate 1 0 -50
+		translate 3 0 -50
 		rotate -90 1 0 0
 		bindtexture road3
-		rectangle 1 100 1 50
+		rectangle 3 100 1 25
 	popMatrix
 popMatrix
 disable textures

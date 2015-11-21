@@ -49,9 +49,8 @@ Canvas.prototype.draw = function() {
 
 Canvas.prototype.updateMVMatrix = function() {
 	this.handleKeys();
-	if(!this.view_changed && !this.keys_pressed) {
+	if(!this.view_changed && !this.keys_pressed)
 		return;
-	}
 	
 	// reset
 	this.view_changed = false;
@@ -96,32 +95,52 @@ Canvas.prototype.translate = function(x, y, z) {
 	this.zTra += z;
 }
 
+Canvas.prototype.rotate = function(x, y, z) {
+	this.updateRotation();
+	
+	var xRot = degToRad(x);
+	var yRot = degToRad(y);
+	var zRot = degToRad(z);
+	
+	this.xRot += xRot;
+	this.yRot += yRot;
+	this.zRot += zRot;
+}
+
+Canvas.prototype.updateRotation = function() {
+	if(this.xRot >= 2*Math.PI || this.xRot < -2*Math.PI)
+		this.xRot = 0;
+	if(this.yRot >= 2*Math.PI || this.yRot < -2*Math.PI)
+		this.yRot = 0;
+	if(this.yRot >= 2*Math.PI || this.yRot < -2*Math.PI)
+		this.zRot = 0;
+}
+
 var currentlyPressedKeys = {};
 
 Canvas.prototype.handleKeys = function() {
+	this.updateKeys();
+	if(this.keys_pressed == false)
+		return;
+	
+	if(this.leftArrowKeyIsPressed())
+		this.rotate(0, -1, 0);
+	if(this.upArrowKeyIsPressed())
+		this.translate(0, 0, 0.1);
+	if(this.rightArrowKeyIsPressed())
+		this.rotate(0, 1, 0);
+	if(this.downArrowKeyIsPressed())
+		this.translate(0, 0, -0.1);
+}
+
+Canvas.prototype.updateKeys = function() {
 	if(this.leftArrowKeyIsPressed() ||
 			this.upArrowKeyIsPressed() ||
 			this.rightArrowKeyIsPressed() ||
-			this.downArrowKeyIsPressed()) {
+			this.downArrowKeyIsPressed())
 		this.keys_pressed = true;
-	}
-	else {
+	else
 		this.keys_pressed = false;
-		return;
-	}
-	
-	if(this.leftArrowKeyIsPressed()) {
-		this.yRot -= 0.05;
-	}
-	if(this.upArrowKeyIsPressed()) {
-		this.translate(0, 0, 0.1);
-	}
-	if(this.rightArrowKeyIsPressed()) {
-		this.yRot += 0.05;
-	}
-	if(this.downArrowKeyIsPressed()) {
-		this.translate(0, 0, -0.1);
-	}
 }
 
 Canvas.prototype.handleKeyDown = function(event) {
