@@ -3,7 +3,7 @@ function Canvas(elementId) {
 	this.gl = this.gl_canvas.gl;
 	this.canvas = this.gl_canvas.canvas;
 	
-	this.setTrack("http://research.dwi.ufl.edu/TelePhyT/rooms/default");
+	this.track = null;
 	
 	var self = this;
 	this.gl_canvas.setup = function() { self.setup(); };
@@ -38,13 +38,13 @@ Canvas.prototype.setup = function() {
 };
 
 Canvas.prototype.draw = function() {
-	// clear the canvas and the depth buffer.
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	
-	this.updateMVMatrix(); 	// update mvMatrix if needed
-	this.updatePMatrix();	// update pMatrix if needed
+	this.updateMVMatrix();
+	this.updatePMatrix();
 	
-	this.track.draw(this.pMatrix, this.mvMatrix);
+	if(this.track)
+		this.track.draw(this.pMatrix, this.mvMatrix);
 };
 
 Canvas.prototype.updateMVMatrix = function() {
@@ -52,11 +52,9 @@ Canvas.prototype.updateMVMatrix = function() {
 	if(!this.view_changed && !this.keys_pressed)
 		return;
 	
-	// reset
 	this.view_changed = false;
 	mat4.identity(this.mvMatrix);
 	
-	// perform calculations
 	mat4.rotate(this.mvMatrix, this.xRot, [1, 0, 0]);
 	mat4.rotate(this.mvMatrix, this.yRot, [0, 1, 0]);
 	mat4.rotate(this.mvMatrix, this.zRot, [0, 0, 1]);
@@ -64,23 +62,16 @@ Canvas.prototype.updateMVMatrix = function() {
 	mat4.scale(this.mvMatrix, [this.zoom, this.zoom, this.zoom]);
 };
 
-// updates the perspective matrix if the size of the canvas has changed
 Canvas.prototype.updatePMatrix = function() {
 	var realToCSSPixels = window.devicePixelRatio || 1;
 	
-	// lookup the size the browser is displaying the canvas in CSS pixels
-	// and compute a size needed to make our drawing buffer match it in
-	// device pixels
 	var displayWidth = Math.floor(this.canvas.clientWidth  * realToCSSPixels);
 	var displayHeight = Math.floor(this.canvas.clientHeight * realToCSSPixels);
 	
-	// check if the canvas is not the same size.
 	if(this.canvas.width != displayWidth || this.canvas.height != displayHeight) {
-		// make the canvas the same size
 		this.canvas.width  = displayWidth;
 		this.canvas.height = displayHeight;
 		
-		// set the view port to match
 		this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
 		this.gl.viewportWidth = this.canvas.width;
 		this.gl.viewportHeight = this.canvas.height;
