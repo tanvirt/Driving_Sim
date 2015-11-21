@@ -26,13 +26,8 @@ Canvas.prototype.setup = function() {
 	this.view_changed = true;
 	this.keys_pressed = false;
 	
-	this.xRot = 0;
-	this.yRot = 0;
-	this.zRot = 0;
-	
-	this.xTra = 0;
-	this.yTra = 0;
-	this.zTra = 0;
+	this.rotation = {x: 0, y: 0, z: 0};
+	this.translation = {x: 0, y: 0, z: 0};
 	
 	this.zoom = 1;
 };
@@ -55,10 +50,10 @@ Canvas.prototype.updateMVMatrix = function() {
 	this.view_changed = false;
 	mat4.identity(this.mvMatrix);
 	
-	mat4.rotate(this.mvMatrix, this.xRot, [1, 0, 0]);
-	mat4.rotate(this.mvMatrix, this.yRot, [0, 1, 0]);
-	mat4.rotate(this.mvMatrix, this.zRot, [0, 0, 1]);
-	mat4.translate(this.mvMatrix, [this.xTra, this.yTra, this.zTra]);
+	mat4.rotate(this.mvMatrix, this.rotation.x, [1, 0, 0]);
+	mat4.rotate(this.mvMatrix, this.rotation.y, [0, 1, 0]);
+	mat4.rotate(this.mvMatrix, this.rotation.z, [0, 0, 1]);
+	mat4.translate(this.mvMatrix, [this.translation.x, this.translation.y, this.translation.z]);
 	mat4.scale(this.mvMatrix, [this.zoom, this.zoom, this.zoom]);
 };
 
@@ -81,30 +76,26 @@ Canvas.prototype.updatePMatrix = function() {
 };
 
 Canvas.prototype.translate = function(x, y, z) {
-	this.xTra += x;
-	this.yTra += y;
-	this.zTra += z;
+	this.translation.x += x;
+	this.translation.y += y;
+	this.translation.z += z;
 }
 
 Canvas.prototype.rotate = function(x, y, z) {
 	this.updateRotation();
 	
-	var xRot = degToRad(x);
-	var yRot = degToRad(y);
-	var zRot = degToRad(z);
-	
-	this.xRot += xRot;
-	this.yRot += yRot;
-	this.zRot += zRot;
+	this.rotation.x += degToRad(x);
+	this.rotation.y += degToRad(y);
+	this.rotation.z += degToRad(z);
 }
 
 Canvas.prototype.updateRotation = function() {
-	if(this.xRot >= 2*Math.PI || this.xRot < -2*Math.PI)
-		this.xRot = 0;
-	if(this.yRot >= 2*Math.PI || this.yRot < -2*Math.PI)
-		this.yRot = 0;
-	if(this.yRot >= 2*Math.PI || this.yRot < -2*Math.PI)
-		this.zRot = 0;
+	if(this.rotation.x >= 2*Math.PI || this.rotation.x < -2*Math.PI)
+		this.rotation.x = 0;
+	if(this.rotation.y >= 2*Math.PI || this.rotation.y < -2*Math.PI)
+		this.rotation.y = 0;
+	if(this.rotation.y >= 2*Math.PI || this.rotation.y < -2*Math.PI)
+		this.rotation.z = 0;
 }
 
 var currentlyPressedKeys = {};
