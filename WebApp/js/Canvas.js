@@ -30,6 +30,9 @@ Canvas.prototype.setup = function() {
 	this.translation = {x: 0, y: 0, z: 0};
 	
 	this.zoom = 1;
+	
+	this.translationSpeed = 0.1;
+	this.rotationSpeed = 1;
 };
 
 Canvas.prototype.draw = function() {
@@ -105,14 +108,14 @@ Canvas.prototype.handleKeys = function() {
 	if(this.keys_pressed == false)
 		return;
 	
-	if(this.leftArrowKeyIsPressed())
-		this.rotate(0, -1, 0);
+	if(this.leftArrowKeyIsPressed() && (this.upArrowKeyIsPressed() || this.downArrowKeyIsPressed()))
+		this.rotate(0, -this.rotationSpeed, 0);
 	if(this.upArrowKeyIsPressed())
-		this.translate(0, 0, 0.1);
-	if(this.rightArrowKeyIsPressed())
-		this.rotate(0, 1, 0);
+		this.translate(-this.translationSpeed*Math.sin(this.rotation.y), 0, this.translationSpeed*Math.cos(this.rotation.y));
+	if(this.rightArrowKeyIsPressed() && (this.upArrowKeyIsPressed() || this.downArrowKeyIsPressed()))
+		this.rotate(0, this.rotationSpeed, 0);
 	if(this.downArrowKeyIsPressed())
-		this.translate(0, 0, -0.1);
+		this.translate(this.translationSpeed*Math.sin(this.rotation.y), 0, -this.translationSpeed*Math.cos(this.rotation.y));
 }
 
 Canvas.prototype.updateKeys = function() {
