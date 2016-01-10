@@ -1,11 +1,11 @@
 #include <conio.h>
 #include "DAQDevice.h"
+#include "DAQServer.h"
 
-int main(void) {
+void runDevice() {
 	DAQDevice* device = new DAQDevice();
 	device->setNumSamples(1000);
 
-	std::cout << "Started program..." << std::endl;
 	try {
 		device->loadTask("MyVoltageTask");
 		device->startTask();
@@ -21,6 +21,18 @@ int main(void) {
 	catch(DAQException* e) {
 		device->handleError(e->getError());
 	}
+}
+
+void runServer() {
+	DAQServer* server = new DAQServer();
+	server->run(9002);
+}
+
+int main(void) {
+	std::cout << "Started program..." << std::endl;
+
+	runDevice();
+	//runServer();
 
 	std::cout << "Ended program" << std::endl;
 	return 0;
