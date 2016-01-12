@@ -15,3 +15,7 @@ document.onkeydown = canvas.handleKeyDown;
 document.onkeyup = canvas.handleKeyUp;
 
 canvas.setTrack("http://localhost/webapps/Driving_Sim/track");
+
+var client = new Client();
+client.connect();
+client.send("Hello world!");
