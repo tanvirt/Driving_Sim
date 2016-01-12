@@ -1,6 +1,7 @@
 #include <conio.h>
 #include "DAQDevice.h"
 #include "DAQServer.h"
+#include <boost/thread.hpp>
 
 void runDevice() {
 	DAQDevice* device = new DAQDevice();
@@ -31,8 +32,11 @@ void runServer() {
 int main(void) {
 	std::cout << "Started program..." << std::endl;
 
-	runDevice();
-	//runServer();
+	boost::thread deviceThread(runDevice);
+	boost::thread deviceServer(runServer);
+
+	deviceThread.join();
+	deviceServer.join();
 
 	std::cout << "Ended program" << std::endl;
 	return 0;
