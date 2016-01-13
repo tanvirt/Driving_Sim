@@ -1,10 +1,3 @@
-/*
- * DAQServer.cpp
- *
- *  Created on: Nov 29, 2015
- *      Author: Tanvir
- */
-
 #include "DAQServer.h"
 
 #include <websocketpp/config/asio_no_tls.hpp>

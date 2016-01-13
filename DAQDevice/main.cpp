@@ -1,4 +1,3 @@
-#include <conio.h>
 #include "DAQDevice.h"
 #include "DAQServer.h"
 #include <boost/thread.hpp>
@@ -11,7 +10,7 @@ void runDevice() {
 		device->loadTask("MyVoltageTask");
 		device->startTask();
 
-		while(!device->taskIsDone() && !kbhit()) {
+		while(!device->taskIsDone()) {
 			device->readAnalogData(10.0, device->GroupByChannel);
 
 			std::cout << "Acquired " << device->getNumSamplesReadPerChannel()
@@ -33,10 +32,10 @@ int main(void) {
 	std::cout << "Started program..." << std::endl;
 
 	boost::thread deviceThread(runDevice);
-	boost::thread deviceServer(runServer);
+	boost::thread serverThread(runServer);
 
 	deviceThread.join();
-	deviceServer.join();
+	serverThread.join();
 
 	std::cout << "Ended program" << std::endl;
 	return 0;
