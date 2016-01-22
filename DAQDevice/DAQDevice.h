@@ -8,18 +8,10 @@
 class DAQDevice {
 
 public:
+	enum FillMode { GroupByChannel, GroupByScanNumber };
+
 	DAQDevice();
 	virtual ~DAQDevice();
-
-private:
-	long numSamples = 1000;
-	double* data = new double[numSamples];
-	unsigned long task = 0;
-	long numSamplesReadPerChannel = 0;
-	std::vector<DAQDeviceListener*>* listeners = new std::vector<DAQDeviceListener*>();
-
-public:
-	enum FillMode { GroupByChannel, GroupByScanNumber };
 
 	void setNumSamples(signed long numSamples);
 
@@ -45,6 +37,14 @@ private:
 
 	bool isError(long error);
 	std::string getErrorInfo(long error);
+
+	long numSamples = 1000;
+	double* data = new double[numSamples];
+	long numSamplesReadPerChannel;
+
+	unsigned long task;
+
+	std::vector<DAQDeviceListener*>* listeners = new std::vector<DAQDeviceListener*>();
 
 };
 

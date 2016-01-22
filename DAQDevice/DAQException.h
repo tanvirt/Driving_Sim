@@ -7,12 +7,12 @@ class DAQException : public std::exception {
 
 public:
 	DAQException(long error) { this->error = error; }
+	virtual ~DAQException() {}
+
+	long getError() { return error; }
 
 private:
 	long error;
-
-public:
-	long getError() { return error; }
 
 };
 

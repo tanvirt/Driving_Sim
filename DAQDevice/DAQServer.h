@@ -12,13 +12,13 @@ using websocketpp::connection_hdl;
 
 class DAQServer : public DAQDeviceListener {
 
+public:
+	DAQServer(DAQDevice* device);
+	virtual ~DAQServer();
+
+	void run(unsigned short port);
+
 private:
-	server m_server;
-	connection_hdl connection;
-
-	DAQDevice* device;
-	bool newDeviceDataReceived;
-
 	void enableLogging();
 	void disableLogging();
 	void registerMessageHandlers();
@@ -27,16 +27,17 @@ private:
 	void onClose(connection_hdl hdl);
 	void onMessage(connection_hdl hdl, server::message_ptr msg);
 
-	void onDataAquired();
-
-public:
-	DAQServer(DAQDevice* device);
-	virtual ~DAQServer();
-
 	void send(double* array, long arraySize);
 	void send(std::string const &text);
 
-	void run(unsigned short port);
+	void onDataAquired();
+
+	server m_server;
+	connection_hdl connection;
+
+	DAQDevice* device;
+	bool newDeviceDataReceived;
+
 };
 
 #endif /* DAQSERVER_H_ */
