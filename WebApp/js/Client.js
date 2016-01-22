@@ -4,7 +4,7 @@ function Client() {
 
 Client.prototype.connect = function() {
 	if(!("WebSocket" in window)) {
-		alert("WebSocket is not supported by your browser");
+		alert("ERROR: WebSocket is not supported by your browser.");
 		return;
 	}
 	
@@ -32,11 +32,11 @@ Client.prototype.send = function(message) {
 	if(self.ws != null) {
 		this.waitForSocketConnection(function() {
 			self.ws.send(message);
-			console.log("Client message: " + message);
+			//console.log("Client message: " + message);
 		});
 	}
 	else
-		console.log("Cannot send message: connection has not been established");
+		console.log("ERROR: cannot send message. Connection has not been established.");
 };
 
 Client.prototype.disconnect = function() {
@@ -48,7 +48,7 @@ Client.prototype.disconnect = function() {
 		});
 	}
 	else
-		console.log("Cannot close WebSocket: connection was never established");
+		console.log("ERROR: cannot disconnect. Connection was never established.");
 };
 
 Client.prototype.onopen = function() {
@@ -56,11 +56,23 @@ Client.prototype.onopen = function() {
 };
 
 Client.prototype.onmessage = function(message) {
-	console.log("Server message: " + message.data);
+	if(message.data instanceof Blob) {
+		var fileReader = new FileReader();
+		fileReader.onload = function() {
+			var arrayBuffer = this.result;
+			var data = new Float64Array(arrayBuffer);
+			console.log("Blob data: " + data);
+		}
+		fileReader.readAsArrayBuffer(message.data);
+	}
+	else if(typeof message.data === "string")
+		console.log("Server message: " + message.data);
+	else
+		console.log("ERROR: + \"" + message.data + "\" not recognized by client.")
 };
 
 Client.prototype.onerror = function(error) {
-	console.log("Error: " + error);
+	console.log("ERROR: " + error);
 };
 
 Client.prototype.onclose = function() {

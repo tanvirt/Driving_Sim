@@ -1,7 +1,9 @@
-function Canvas(elementId) {
+function Canvas(elementId, client) {
 	this.gl_canvas = new webGLcanvas(elementId);
 	this.gl = this.gl_canvas.gl;
 	this.canvas = this.gl_canvas.canvas;
+	
+	this.client = client;
 	
 	this.track = null;
 	
@@ -43,6 +45,9 @@ Canvas.prototype.draw = function() {
 	
 	if(this.track)
 		this.track.draw(this.pMatrix, this.mvMatrix);
+	
+	if(client.ws != null)
+		this.client.send("Get data");
 };
 
 Canvas.prototype.updateMVMatrix = function() {
