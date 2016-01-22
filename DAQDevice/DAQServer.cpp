@@ -1,73 +1,86 @@
+#include <iostream>
 #include "DAQServer.h"
 
-#include <websocketpp/config/asio_no_tls.hpp>
-
-#include <websocketpp/server.hpp>
-
-#include <iostream>
-
-typedef websocketpp::server<websocketpp::config::asio> server;
-
+using websocketpp::log::alevel;
+using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
-using websocketpp::lib::bind;
+using websocketpp::lib::error_code;
 
-// pull out the type of messages sent by our config
-typedef server::message_ptr message_ptr;
-
-DAQServer::DAQServer() {}
+DAQServer::DAQServer(DAQDevice* device) {
+	this->device = device;
+	disableLogging();
+	m_server.init_asio();
+	registerMessageHandlers();
+}
 
 DAQServer::~DAQServer() {}
 
-void on_message(server* s, websocketpp::connection_hdl hdl, message_ptr msg) {
-    std::cout << "on_message called with hdl: " << hdl.lock().get()
-              << " and message: " << msg->get_payload()
-              << std::endl;
-
-    // check for a special command to instruct the server to stop listening so
-    // it can be cleanly exited.
-    if(msg->get_payload() == "stop-listening") {
-        s->stop_listening();
-        return;
-    }
-
-    try {
-        s->send(hdl, msg->get_payload(), websocketpp::frame::opcode::TEXT);
-    }
-    catch(const websocketpp::lib::error_code& e) {
-        std::cout << "Echo failed because: " << e
-                  << "(" << e.message() << ")" << std::endl;
-    }
-}
-
 void DAQServer::run(unsigned short port) {
-	// Create a server endpoint
-	server echo_server;
-
 	try {
-		// Set logging settings
-		echo_server.set_access_channels(websocketpp::log::alevel::all);
-		echo_server.clear_access_channels(websocketpp::log::alevel::frame_payload);
-
-		// Initialize ASIO
-		echo_server.init_asio();
-
-		// Register our message handler
-		echo_server.set_message_handler(bind(&on_message,&echo_server,::_1,::_2));
-
-		// Listen on port 9002
-		echo_server.listen(port);
-
-		// Start the server accept loop
-		echo_server.start_accept();
-
-		// Start the ASIO io_service run loop
-		echo_server.run();
+		m_server.listen(port);
+		m_server.start_accept();
+		m_server.run();
 	}
 	catch(websocketpp::exception const & e) {
 		std::cout << e.what() << std::endl;
 	}
 	catch(...) {
-		std::cout << "other exception" << std::endl;
+		std::cout << "Other exception" << std::endl;
 	}
+	m_server.stop_listening();
+}
+
+void DAQServer::enableLogging() {
+	m_server.set_access_channels(alevel::all);
+	m_server.clear_access_channels(alevel::frame_payload);
+}
+
+void DAQServer::disableLogging() {
+	m_server.set_access_channels(alevel::none);
+}
+
+void DAQServer::registerMessageHandlers() {
+	m_server.set_open_handler(bind(&DAQServer::onOpen, this, ::_1));
+	m_server.set_close_handler(bind(&DAQServer::onClose, this, ::_1));
+	m_server.set_message_handler(bind(&DAQServer::onMessage, this, ::_1, ::_2));
+}
+
+void DAQServer::onOpen(connection_hdl hdl) {
+	connection = hdl;
+}
+
+void DAQServer::onClose(connection_hdl hdl) {}
+
+void DAQServer::onMessage(connection_hdl hdl, server::message_ptr msg) {
+	try {
+		if(msg->get_payload() == "Get data") {
+			if(newDeviceDataReceived) {
+				send(device->getData(), device->getNumSamplesReadPerChannel());
+				newDeviceDataReceived = false;
+			}
+		}
+		else if(msg->get_payload() == "Stop listening") {
+			m_server.stop_listening();
+			return;
+		}
+		else
+			send("ERROR: + \"" + msg->get_payload() + "\" not recognized by server.");
+	}
+	catch(const error_code& e) {
+		std::cout << "ERROR: message failed because " << e
+				  << "(" << e.message() << ")" << std::endl;
+	}
+}
+
+void DAQServer::send(double* array, long arraySize) {
+	m_server.send(connection, array, arraySize*8, websocketpp::frame::opcode::BINARY);
+}
+
+void DAQServer::send(std::string const &text) {
+	m_server.send(connection, text, websocketpp::frame::opcode::TEXT);
+}
+
+void DAQServer::onDataAquired() {
+	newDeviceDataReceived = true;
 }

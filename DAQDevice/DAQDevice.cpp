@@ -1,11 +1,8 @@
+#include "NIDAQmx.h"
 #include "DAQDevice.h"
+#include "DAQException.h"
 
-DAQDevice::DAQDevice() {
-	numSamples = 1000;
-	data = new double[numSamples];
-	taskHandle = 0;
-	numSamplesReadPerChannel = 0;
-}
+DAQDevice::DAQDevice() {}
 
 DAQDevice::~DAQDevice() {
 	delete [] data;
@@ -25,33 +22,42 @@ signed long DAQDevice::getNumSamplesReadPerChannel() {
 	return numSamplesReadPerChannel;
 }
 
-void DAQDevice::loadTask(const char * task) {
-	signed long error = DAQmxLoadTask(task, &taskHandle);
+unsigned long DAQDevice::getNumChannels() {
+	if(task != 0) {
+		unsigned long numChannels;
+		DAQmxGetTaskNumChans(task, &numChannels);
+		return numChannels;
+	}
+	return 0;
+}
+
+void DAQDevice::loadTask(const char* taskName) {
+	long error = DAQmxLoadTask(taskName, &task);
 	if(isError(error))
 		throw new DAQException(error);
 }
 
 void DAQDevice::startTask() {
-	signed long error = DAQmxStartTask(taskHandle);
+	long error = DAQmxStartTask(task);
 	if(isError(error))
 		throw new DAQException(error);
 }
 
 void DAQDevice::stopTask() {
-	DAQmxStopTask(taskHandle);
+	DAQmxStopTask(task);
 }
 
 void DAQDevice::clearTask() {
-	DAQmxClearTask(taskHandle);
+	DAQmxClearTask(task);
 }
 
 bool DAQDevice::taskIsLoaded() {
-	return taskHandle != 0;
+	return task != 0;
 }
 
 bool DAQDevice::taskIsDone() {
 	unsigned long isTaskDone = FALSE;
-	signed long error = DAQmxIsTaskDone(taskHandle, &isTaskDone);
+	long error = DAQmxIsTaskDone(task, &isTaskDone);
 
 	if(isError(error))
 		throw new DAQException(error);
@@ -68,11 +74,14 @@ void DAQDevice::readAnalogData(double timeout, FillMode fillMode) {
 	else if(fillMode == GroupByScanNumber)
 		mode = 1;
 
-	DAQmxReadAnalogF64(taskHandle, this->numSamples, timeout,
-			mode, data, this->numSamples, &numSamplesReadPerChannel, NULL);
+	DAQmxReadAnalogF64(task, numSamples, timeout, mode, data,
+			numSamples, &numSamplesReadPerChannel, NULL);
+
+	for(unsigned int i = 0; i < listeners->size(); i++)
+		listeners->at(i)->onDataAquired();
 }
 
-void DAQDevice::handleError(signed long error) {
+void DAQDevice::handleError(long error) {
 	if(taskIsLoaded()) {
 		stopTask();
 		clearTask();
@@ -81,7 +90,7 @@ void DAQDevice::handleError(signed long error) {
 		std::cout << "DAQmx Error: " << getErrorInfo(error) << std::endl;
 }
 
-std::string DAQDevice::getErrorInfo(signed long error) {
+std::string DAQDevice::getErrorInfo(long error) {
 	char errorBuffer[2048] = {'\0'};
 	if(isError(error))
 		DAQmxGetExtendedErrorInfo(errorBuffer, 2048);
@@ -90,6 +99,10 @@ std::string DAQDevice::getErrorInfo(signed long error) {
 	return errorString;
 }
 
-bool DAQDevice::isError(signed long error) {
+bool DAQDevice::isError(long error) {
 	return DAQmxFailed(error);
+}
+
+void DAQDevice::addListener(DAQDeviceListener* listener) {
+	listeners->push_back(listener);
 }

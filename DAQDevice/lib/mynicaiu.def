@@ -7,3 +7,4 @@ DAQmxStopTask@4
 DAQmxClearTask@4
 DAQmxLoadTask@8
 DAQmxIsTaskDone@8
+DAQmxGetTaskNumChans@8

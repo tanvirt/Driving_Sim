@@ -6,13 +6,13 @@
 class DAQException : public std::exception {
 
 public:
-	DAQException(signed long error);
+	DAQException(long error) { this->error = error; }
 
 private:
-	signed long error;
+	long error;
 
 public:
-	signed long getError();
+	long getError() { return error; }
 
 };
 

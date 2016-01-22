@@ -2,8 +2,8 @@
 #define DAQDEVICE_H_
 
 #include <iostream>
-#include "NIDAQmx.h"
-#include "DAQException.h"
+#include <vector>
+#include "DAQDeviceListener.h"
 
 class DAQDevice {
 
@@ -12,31 +12,39 @@ public:
 	virtual ~DAQDevice();
 
 private:
-	signed long numSamples;
-	double* data;
-	unsigned long taskHandle;
-	signed long numSamplesReadPerChannel;
+	long numSamples = 1000;
+	double* data = new double[numSamples];
+	unsigned long task = 0;
+	long numSamplesReadPerChannel = 0;
+	std::vector<DAQDeviceListener*>* listeners = new std::vector<DAQDeviceListener*>();
 
 public:
 	enum FillMode { GroupByChannel, GroupByScanNumber };
 
-	void setNumSamples(signed long);
+	void setNumSamples(signed long numSamples);
 
 	double* getData();
 	signed long getNumSamplesReadPerChannel();
 
-	void loadTask(const char *);
+	void loadTask(const char* taskName);
 	void startTask();
+	bool taskIsDone();
+
+	void readAnalogData(double timeout, FillMode fillMode);
+
+	void handleError(long error);
+
+	void addListener(DAQDeviceListener* listener);
+
+private:
+	unsigned long getNumChannels();
+
 	void stopTask();
 	void clearTask();
 	bool taskIsLoaded();
-	bool taskIsDone();
 
-	void readAnalogData(double, FillMode);
-
-	void handleError(signed long);
-	std::string getErrorInfo(signed long);
-	bool isError(signed long);
+	bool isError(long error);
+	std::string getErrorInfo(long error);
 
 };
 
