@@ -3,10 +3,9 @@
 #include "DAQException.h"
 
 void runDevice(DAQDevice* device) {
-	device->setNumSamples(1);
-
 	try {
 		device->loadTask("MyVoltageTask");
+		device->setNumSamplesPerChannel(1);
 		device->startTask();
 
 		while(!device->taskIsDone())

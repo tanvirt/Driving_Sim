@@ -22,7 +22,7 @@ void DAQServer::run(unsigned short port) {
 		m_server.start_accept();
 		m_server.run();
 	}
-	catch(websocketpp::exception const & e) {
+	catch(websocketpp::exception const &e) {
 		std::cout << e.what() << std::endl;
 	}
 	catch(...) {
@@ -56,7 +56,8 @@ void DAQServer::onMessage(connection_hdl hdl, server::message_ptr msg) {
 	try {
 		if(msg->get_payload() == "Get data") {
 			if(newDeviceDataReceived) {
-				send(device->getData(), device->getNumSamplesReadPerChannel());
+				long arraySize = device->getNumSamplesReadPerChannel()*device->getNumChannels();
+				send(device->getData(), arraySize);
 				newDeviceDataReceived = false;
 			}
 		}
@@ -67,7 +68,7 @@ void DAQServer::onMessage(connection_hdl hdl, server::message_ptr msg) {
 		else
 			send("ERROR: + \"" + msg->get_payload() + "\" not recognized by server.");
 	}
-	catch(const error_code& e) {
+	catch(const error_code &e) {
 		std::cout << "ERROR: message failed because " << e
 				  << "(" << e.message() << ")" << std::endl;
 	}

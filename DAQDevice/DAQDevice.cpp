@@ -8,10 +8,10 @@ DAQDevice::~DAQDevice() {
 	delete [] data;
 }
 
-void DAQDevice::setNumSamples(signed long numSamples) {
-	this->numSamples = numSamples;
+void DAQDevice::setNumSamplesPerChannel(signed long numSamples) {
+	this->numSamples = numSamples*getNumChannels();
 	delete [] data;
-	data = new double[numSamples];
+	data = new double[this->numSamples];
 }
 
 double* DAQDevice::getData() {
@@ -68,13 +68,7 @@ bool DAQDevice::taskIsDone() {
 }
 
 void DAQDevice::readAnalogData(double timeout, FillMode fillMode) {
-	unsigned long mode;
-	if(fillMode == GroupByChannel)
-		mode = 0;
-	else if(fillMode == GroupByScanNumber)
-		mode = 1;
-
-	DAQmxReadAnalogF64(task, numSamples, timeout, mode, data,
+	DAQmxReadAnalogF64(task, numSamples/getNumChannels(), timeout, fillMode, data,
 			numSamples, &numSamplesReadPerChannel, NULL);
 
 	for(unsigned int i = 0; i < listeners->size(); i++)

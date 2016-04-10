@@ -13,10 +13,11 @@ public:
 	DAQDevice();
 	virtual ~DAQDevice();
 
-	void setNumSamples(signed long numSamples);
+	void setNumSamplesPerChannel(signed long numSamples);
 
 	double* getData();
 	signed long getNumSamplesReadPerChannel();
+	unsigned long getNumChannels();
 
 	void loadTask(const char* taskName);
 	void startTask();
@@ -29,8 +30,6 @@ public:
 	void addListener(DAQDeviceListener* listener);
 
 private:
-	unsigned long getNumChannels();
-
 	void stopTask();
 	void clearTask();
 	bool taskIsLoaded();
