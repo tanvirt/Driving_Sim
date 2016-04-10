@@ -1,0 +1,197 @@
+texture road1 Road1.bmp
+texture road2 Road2.bmp
+texture road3 Road3.bmp
+texture road4 Road4.bmp
+texture road5 Road5.bmp
+texture grass grass2.jpg
+texture sky_full sky_full.png
+texture sky_roof sky_roof.png
+clearcolor 0 0 0
+enable textures
+color 1 1 1
+pushMatrix
+translate 0 -1 0
+	
+	pushMatrix
+		translate 200 50 0
+		rotate -90 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 200 50 -55
+		rotate -90 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 200 50 55
+		rotate -90 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate 140 50 -140
+		rotate -45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 101.11 50 -178.89
+		rotate -45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 178.89 50 -101.11
+		rotate -45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate 0 50 -200
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -55 50 -200
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 55 50 -200
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate -140 50 -140
+		rotate 45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -101.11 50 -178.89
+		rotate 45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -178.89 50 -101.11
+		rotate 45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate -200 50 0
+		rotate 90 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -200 50 -55
+		rotate 90 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -200 50 55
+		rotate 90 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate -140 50 140
+		rotate -45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -101.11 50 178.89
+		rotate -45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -178.89 50 101.11
+		rotate -45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate 0 50 200
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate -55 50 200
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 55 50 200
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	pushMatrix
+		translate 140 50 140
+		rotate 45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 101.11 50 178.89
+		rotate 45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	pushMatrix
+		translate 178.89 50 101.11
+		rotate 45 0 1 0
+		bindtexture sky_full
+		rectangle 56 110 1 1
+	popMatrix
+	
+	
+	
+	pushMatrix
+		translate 0 160 0
+		rotate -90 1 0 0
+		bindtexture sky_roof
+		rectangle 1000 1000 1 1
+	popMatrix
+	
+	
+	
+	pushMatrix
+		translate -112 -1.5 -50
+		rotate -90 1 0 0
+		bindtexture grass
+		rectangle 200 400 50 100
+	popMatrix
+	pushMatrix
+		translate 104 -1.5 -50
+		rotate -90 1 0 0
+		bindtexture grass
+		rectangle 200 400 50 100
+	popMatrix
+	pushMatrix
+		translate -8 -1.5 -50
+		rotate -90 1 0 0
+		bindtexture road5
+		rectangle 8 400 1 25
+	popMatrix
+	pushMatrix
+		translate 0 -1.5 -50
+		rotate -90 1 0 0
+		bindtexture road4
+		rectangle 8 400 1 25
+	popMatrix
+popMatrix
+disable textures

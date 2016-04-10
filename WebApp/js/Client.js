@@ -1,37 +1,42 @@
-function Client() {
-	this.ws = null;
+function Client(url) {
+	this._socket = null;
+	this._listeners = [];
+	this.connect(url);
 }
 
-Client.prototype.connect = function() {
+Client.prototype.connect = function(url) {
 	if(!("WebSocket" in window)) {
 		alert("ERROR: WebSocket is not supported by your browser.");
 		return;
 	}
+	if(this._socket != null) {
+		console.log("ERROR: connection has already been established. Must diconnect before connecting.");
+		return;
+	}
 	
-    this.ws = new WebSocket("ws://localhost:9002");
+    this._socket = new WebSocket("ws://localhost:9002");
 	
 	var self = this;
-	
-	this.ws.onopen = function() {
-		self.onopen();
+	this._socket.onopen = function() {
+		self._onopen();
 	};
-    this.ws.onmessage = function(message) {
-		self.onmessage(message);
+    this._socket.onmessage = function(message) {
+		self._onmessage(message);
 	};
-    this.ws.onclose = function() { 
-		self.onclose();
-		self.ws = null;
+    this._socket.onclose = function() { 
+		self._onclose();
+		self._ws = null;
 	};
-	this.ws.onerror = function(error) {
-		self.onerror(error);
+	this._socket.onerror = function(error) {
+		self._onerror(error);
 	};
 };
 
 Client.prototype.send = function(message) {
 	var self = this;
-	if(self.ws != null) {
-		this.waitForSocketConnection(function() {
-			self.ws.send(message);
+	if(this._socket != null) {
+		this._waitForSocketConnection(function() {
+			self._socket.send(message);
 			//console.log("Client message: " + message);
 		});
 	}
@@ -41,70 +46,81 @@ Client.prototype.send = function(message) {
 
 Client.prototype.disconnect = function() {
 	var self = this;
-	if(self.ws != null) {
-		this.waitForSocketConnection(function() {
-			self.ws.close();
-			self.ws = null;
+	if(self._socket != null) {
+		this._waitForSocketConnection(function() {
+			self._socket.close();
+			self._socket = null;
 		});
 	}
 	else
 		console.log("ERROR: cannot disconnect. Connection was never established.");
 };
 
-Client.prototype.onopen = function() {
+Client.prototype.connectionEstablished = function() {
+	return this._socket != null;
+}
+
+Client.prototype.connectionIsOpen = function() {
+	if(!this.connectionEstablished())
+		return false;
+	return this._socket.readyState === 1;
+}
+
+Client.prototype.connectionIsClosed = function() {
+	if(!this.connectionEstablished())
+		return true;
+	return this._socket.readyState === 3;
+}
+
+Client.prototype.addMessageListener = function(listener) {
+	this._listeners.push(listener);
+}
+
+Client.prototype._onopen = function() {
 	console.log("Connection established");
 };
 
-Client.prototype.onmessage = function(message) {
+Client.prototype._onmessage = function(message) {
+	var self = this;
 	if(message.data instanceof Blob) {
 		var fileReader = new FileReader();
 		fileReader.onload = function() {
 			var arrayBuffer = this.result;
-			var data = new Float64Array(arrayBuffer);
-			console.log("Blob data: " + data);
+			var array = new Float64Array(arrayBuffer);
+			for(var i = 0; i < self._listeners.length; i++)
+				self._listeners[i].onArrayDataReceived(array);
 		}
 		fileReader.readAsArrayBuffer(message.data);
 	}
 	else if(typeof message.data === "string")
-		console.log("Server message: " + message.data);
+		for(var i = 0; i < self._listeners.length; i++)
+			self._listeners[i].onStringDataReceived(array);
 	else
-		console.log("ERROR: + \"" + message.data + "\" not recognized by client.")
+		console.log("ERROR: + \"" + message.data + "\" not recognized by client.");
 };
 
-Client.prototype.onerror = function(error) {
+Client.prototype._onerror = function(error) {
 	console.log("ERROR: " + error);
 };
 
-Client.prototype.onclose = function() {
+Client.prototype._onclose = function() {
 	console.log("Connection closed");
 };
 
-Client.prototype.waitForSocketConnection = function(callback) {
+Client.prototype._waitForSocketConnection = function(callback) {
 	var self = this;
 	setTimeout(
-	        function() {
-	            if(self.connectionIsOpen()) {
-	                if(callback != null)
-	                    callback();
-	                return;
-	            }
-				else if(self.connectionIsClosed())
-					return;
-				else
-	                self.waitForSocketConnection(callback);
-	        }, 
-			5 // wait 5 milliseconds for the connection
+        function() {
+            if(self.connectionIsOpen()) {
+                if(callback != null)
+                    callback();
+                return;
+            }
+			else if(self.connectionIsClosed())
+				return;
+			else
+                self._waitForSocketConnection(callback);
+        }, 
+		5 // wait 5 milliseconds for the connection
 	);
 };
-
-Client.prototype.connectionIsOpen = function() {
-	if(this.ws == null)
-		return false;
-	return this.ws.readyState === 1;
-}
-
-Client.prototype.connectionIsClosed = function() {
-	if(this.ws == null)
-		return true;
-	return this.ws.readyState === 3;
-}
