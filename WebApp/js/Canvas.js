@@ -15,14 +15,15 @@ function Canvas(client, elementId) {
     this._translationSpeed = 0.1;
     this._rotationSpeed = 0.5;
     
-    this._currentlyPressedKeys = {};
+    //this._currentlyPressedKeys = {};
+
+    this._listeners = [];
     
     this.start();
 } Canvas.prototype = new GLCanvas();
 
-Canvas.prototype.setRoom = function(filePath) {
-    this._room = new GLImageComposition(this);
-    this._room.load(filePath);
+Canvas.prototype.setRoom = function(compositon) {
+    this._room = compositon;
 }
 
 Canvas.prototype.addDrawableObject = function(drawableObject) {
@@ -54,9 +55,13 @@ Canvas.prototype.onDraw = function() {
     if(this._room != null)
         this._room.draw();
     this._drawableList.draw();
-    
-    if(this._client.connectionEstablished())
-        this._client.send("Get data");
+
+    for(var i = 0; i < this._listeners.length; i++)
+        this._listeners[i].onDraw();
+}
+
+Canvas.prototype.addDrawListener = function(listener) {
+    this._listeners.push(listener);
 }
 
 Canvas.prototype.translate = function(x, y, z) {
@@ -72,6 +77,63 @@ Canvas.prototype.rotate = function(x, y, z) {
     this._rotation[2] += degToRad(z);
 }
 
+Canvas.prototype.getPosition = function() { return this._translation; }
+Canvas.prototype.getRotation = function() { return this._rotation; }
+
+Canvas.prototype._updateCamera = function() {
+    //this.handleKeys();
+    this.getCamera().rotateX(this._rotation[0]);
+    this.getCamera().rotateY(this._rotation[1]);
+    this.getCamera().rotateZ(this._rotation[2]);
+    this.getCamera().translate([this._translation[0], this._translation[1], this._translation[2]]);
+};
+
+Canvas.prototype._updateRotation = function() {
+    if(this._rotation[0] >= 2*Math.PI || this._rotation[0] < -2*Math.PI)
+        this._rotation[0] = 0;
+    if(this._rotation[1] >= 2*Math.PI || this._rotation[1] < -2*Math.PI)
+        this._rotation[1] = 0;
+    if(this._rotation[2] >= 2*Math.PI || this._rotation[2] < -2*Math.PI)
+        this._rotation[2] = 0;
+}
+
+Canvas.prototype._createCanvasContainerElement = function() {
+    var container = document.createElement("DIV");
+    
+    container.id = "canvas_container";
+    container.style.position = "absolute";
+    container.style.width = "100%";
+    container.style.top = "0px";
+    container.style.bottom = "0px";
+    container.style.right = "0px";
+    
+    document.body.appendChild(container);
+    
+    return container;
+}
+
+Canvas.prototype._requestFullScreen = function(element) {
+    // Supports most browsers and their versions.
+    var requestMethod = element.requestFullScreen || 
+        element.webkitRequestFullScreen || 
+        element.mozRequestFullScreen || 
+        element.msRequestFullscreen;
+    
+    if(requestMethod) // Native full screen.
+        requestMethod.call(element);
+    else if(window.ActiveXObject == undefined) { // Older IE.
+        var wscript = new ActiveXObject("WScript.Shell");
+        if(wscript !== null)
+            wscript.SendKeys("{F11}");
+    }
+}
+
+/*
+Canvas.prototype.handleKeyUp = function(event) {
+    event.preventDefault();
+    this._currentlyPressedKeys[event.keyCode] = false;
+}
+
 Canvas.prototype.handleKeyDown = function(event) {
     event.preventDefault();
     this._currentlyPressedKeys[event.keyCode] = true;
@@ -83,11 +145,6 @@ Canvas.prototype.handleKeyDown = function(event) {
         this.useOculusProjector();
     else if(event.keyCode === 52)
         this.useSideBySideProjector();
-}
-
-Canvas.prototype.handleKeyUp = function(event) {
-    event.preventDefault();
-    this._currentlyPressedKeys[event.keyCode] = false;
 }
 
 Canvas.prototype.handleKeys = function() {
@@ -103,23 +160,6 @@ Canvas.prototype.handleKeys = function() {
         this._translateForward();
     if(this._drivingBackward())
         this._translateBackward();
-}
-
-Canvas.prototype._updateCamera = function() {
-    this.handleKeys();
-    this.getCamera().rotateX(this._rotation[0]);
-    this.getCamera().rotateY(this._rotation[1]);
-    this.getCamera().rotateZ(this._rotation[2]);
-    this.getCamera().translate([this._translation[0], this._translation[1], this._translation[2]]);
-};
-
-Canvas.prototype._updateRotation = function() {
-    if(this._rotation[0] >= 2*Math.PI || this._rotation[0] < -2*Math.PI)
-        this._rotation[0] = 0;
-    if(this._rotation[1] >= 2*Math.PI || this._rotation[1] < -2*Math.PI)
-        this._rotation[1] = 0;
-    if(this._rotation[2] >= 2*Math.PI || this._rotation[2] < -2*Math.PI)
-        this._rotation[2] = 0;
 }
 
 Canvas.prototype._keysPressed = function() {
@@ -186,34 +226,4 @@ Canvas.prototype._rightArrowKeyIsPressed = function() {
 Canvas.prototype._downArrowKeyIsPressed = function() {
     return this._currentlyPressedKeys[40] == true;
 }
-
-Canvas.prototype._createCanvasContainerElement = function() {
-    var container = document.createElement("DIV");
-    
-    container.id = "canvas_container";
-    container.style.position = "absolute";
-    container.style.width = "100%";
-    container.style.top = "0px";
-    container.style.bottom = "0px";
-    container.style.right = "0px";
-    
-    document.body.appendChild(container);
-    
-    return container;
-}
-
-Canvas.prototype._requestFullScreen = function(element) {
-    // Supports most browsers and their versions.
-    var requestMethod = element.requestFullScreen || 
-        element.webkitRequestFullScreen || 
-        element.mozRequestFullScreen || 
-        element.msRequestFullscreen;
-    
-    if(requestMethod) // Native full screen.
-        requestMethod.call(element);
-    else if(window.ActiveXObject == undefined) { // Older IE.
-        var wscript = new ActiveXObject("WScript.Shell");
-        if(wscript !== null)
-            wscript.SendKeys("{F11}");
-    }
-}
+*/

@@ -1,33 +1,34 @@
-function Driver() {
-	var my_client = new Client("ws://localhost:9002");
+function Driver(canvas) {
+	if(arguments.length < 1) return;
 
-	var my_canvas = new Canvas(my_client);
-	my_canvas.setRoom("http://localhost/webapps/Driving_Sim/track2");
+	this._canvas = canvas;
+	this._speed = 0;
+}
 
-	var game = new Game(my_client, my_canvas);
+Driver.prototype.changeSpeed = function(targetSpeed) { this._speed = (1 - 0.0001)*this._speed + 0.0001*targetSpeed; }
 
-	document.onkeydown = function(event) {
-		my_canvas.handleKeyDown(event);
-	};
+Driver.prototype.driveForward = function() {
+	var rotation = this._canvas.getRotation();
+	this._canvas.translate(
+		-this._speed*Math.sin(rotation[1]),
+		0,
+		this._speed*Math.cos(rotation[1])
+	);
+}
 
-	document.onkeyup = function(event) {
-		my_canvas.handleKeyUp(event);
-	};
+Driver.prototype.driveBackward = function() {
+	var rotation = this._canvas.getRotation();
+	this._canvas.translate(
+        this._speed*Math.sin(rotation[1]),
+        0,
+        -this._speed*Math.cos(rotation[1])
+    );
+}
 
-	my_canvas.onDrag = function(event) {
-		my_canvas.getCamera().oneFingerRotate(event);
-	}
+Driver.prototype.turnLeft = function() {
+	this._canvas.rotate(0, -this._speed*5, 0);
+}
 
-	document.body.onkeypress = function(event) {
-		if(event.keyCode === 49)
-			my_canvas.useRegularProjector();
-		else if(event.keyCode === 50)
-			my_canvas.useRedCyanProjector();
-		else if(event.keyCode === 51)
-			my_canvas.useOculusProjector();
-		else if(event.keyCode === 52)
-			my_canvas.useSideBySideProjector();
-	}
-} 
-
-var driver = new Driver();
+Driver.prototype.turnRight = function() {
+	this._canvas.rotate(0, this._speed*5, 0);
+}
