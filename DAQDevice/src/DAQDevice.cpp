@@ -31,6 +31,28 @@ unsigned long DAQDevice::getNumChannels() {
 	return 0;
 }
 
+void DAQDevice::createAIVoltageChannel(const char* channel) {
+	long error = DAQmxCreateAIVoltageChan(
+		task,
+		channel,
+		"",
+		DAQmx_Val_Cfg_Default,
+		-10.0,
+		10.0,
+		DAQmx_Val_Volts,
+		NULL
+	);
+	if(isError(error))
+		throw new DAQException(error);
+
+}
+
+void DAQDevice::createTask(const char* taskName) {
+	long error = DAQmxCreateTask(taskName, &task);
+	if(isError(error))
+		throw new DAQException(error);
+}
+
 void DAQDevice::loadTask(const char* taskName) {
 	long error = DAQmxLoadTask(taskName, &task);
 	if(isError(error))

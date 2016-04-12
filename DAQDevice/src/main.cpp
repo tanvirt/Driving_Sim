@@ -5,6 +5,10 @@
 void runDevice(DAQDevice* device) {
 	try {
 		device->loadTask("MyVoltageTask");
+		/*device->createTask("");
+		device->createAIVoltageChannel("Dev2/ai6");
+		device->createAIVoltageChannel("Dev2/ai7");
+		device->createAIVoltageChannel("Dev2/ai18");*/
 		device->setNumSamplesPerChannel(1);
 		device->startTask();
 

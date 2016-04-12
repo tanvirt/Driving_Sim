@@ -19,10 +19,12 @@ public:
 	signed long getNumSamplesReadPerChannel();
 	unsigned long getNumChannels();
 
+	void createTask(const char* taskName);
 	void loadTask(const char* taskName);
 	void startTask();
 	bool taskIsDone();
 
+	void createAIVoltageChannel(const char* channel);
 	void readAnalogData(double timeout, FillMode fillMode);
 
 	void handleError(long error);
