@@ -11,22 +11,22 @@ var getCgiText = function() {
 		"pushMatrix\n" +
 		"translate 0 -1 0\n" +
 		"	pushMatrix\n" +
-		"		translate 0 -1.501 -50\n" +
+		"		translate 0 -1.5 0\n" +
 		"		rotate -90 1 0 0\n" +
 		"		bindtexture grass\n" +
-		"		rectangle 400 400 50 100\n" +
+		"		rectangle 200 1000 20 100\n" +
 		"	popMatrix\n" +
 		"	pushMatrix\n" +
-		"		translate -8 -1.5 -50\n" +
+		"		translate -8 -1.3 0\n" +
 		"		rotate -90 1 0 0\n" +
 		"		bindtexture road5\n" +
-		"		rectangle 8 400 1 25\n" +
+		"		rectangle 8 1000 1 25\n" +
 		"	popMatrix\n" +
 		"	pushMatrix\n" +
-		"		translate 0 -1.5 -50\n" +
+		"		translate 0 -1.3 0\n" +
 		"		rotate -90 1 0 0\n" +
 		"		bindtexture road4\n" +
-		"		rectangle 8 400 1 25\n" +
+		"		rectangle 8 1000 1 25\n" +
 		"	popMatrix\n" +
 		"popMatrix\n" +
 		"disable textures\n";
@@ -61,7 +61,6 @@ document.body.onkeypress = function(event) {
 	else if(event.keyCode === 52)
 		my_canvas.useSideBySideProjector();
 }
-
 /*
 document.onkeydown = function(event) {
 	my_canvas.handleKeyDown(event);

@@ -78,6 +78,10 @@ DrawableObject.prototype.setPosition = function(xyz) {
 	this._lastMoved = new Date().getTime();
 }
 
+DrawableObject.prototype.setRotation = function(thetas) {
+	this._rotation = thetas;
+}
+
 DrawableObject.prototype.rotate = function(thetaX, thetaY, thetaZ) {
 	this._rotation[0] += thetaX;
 	this._rotation[1] += thetaY;

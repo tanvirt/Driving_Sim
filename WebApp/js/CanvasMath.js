@@ -123,3 +123,21 @@ CanvasMath._projectionFrom3dTo2d = function(xyz, fieldOfView, height) {
 CanvasMath._focalLength = function(angle, height) {
 	return (height / 2)*( 1 / (Math.tan(angle / 2)) );
 }
+
+CanvasMath.distanceFromPointToLine = function(px, py, ax, ay, bx, by) {
+	var lambda = ( ((bx - ax)*(px - ax) + (by - ay)*(py - ay)) / (Math.pow((bx - ax), 2) + Math.pow((by - ay), 2)) );
+	
+	if(lambda < 0)
+		lambda = 0;
+	else if(lambda > 1)
+		lambda = 1;
+	
+	var x = ax + lambda*(bx - ax);
+	var y = ay + lambda*(by - ay);
+	
+	return distanceFromPointToPoint(px, py, x, y);
+}
+
+CanvasMath.distanceFromPointToPoint = function(x1, y1, x2, y2) {
+	return Math.sqrt( Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2) );
+}

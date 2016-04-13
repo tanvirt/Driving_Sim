@@ -1,36 +1,46 @@
-// Game implements the MessageListener interface
+// Game implements the MessageListener and DrawListener interfaces
 
 function Game(client, canvas) {
 	this._client = client;
 	this._canvas = canvas;
 
-	this._state = GameState.MENU;
+	this._state = GameState.CONSTRUCTED;
 
 	this._driver = new Driver(this._canvas);
 
-	this._currentStateStartTime = 0;
+	this._walls = null;
+	this._roof = null;
 
-	this._linePlot = null; 	// DEV: this is temporary
-	this._startTime = 0;	// DEV: this is temporary
+	this._result = null;
+
+	this._currentStateStartTime = 0;
+	this._experimentStartTime = 0;
 
 	this._times = [];		// DEV: this is temporary
 	this._samples = [];		// DEV: this is temporary
 
+	this._positions = [];	// DEV: this is temporary
+	this._rotations = [];	// DEV: this is temporary
+
 	this._setup();
 }
 
+Game.prototype.getCanvas = function() { return this._canvas; }
+Game.prototype.getSamples = function() { return this._samples; }
+Game.prototype.getTimes = function() { return this._times; }
+Game.prototype.getPositions = function() { return this._positions; }
+Game.prototype.getRotations = function() { return this._rotations; }
+
 Game.prototype._setup = function() {
+	this._canvas.setPosition(0, 0, -450);
 	this._canvas.addDrawListener(this);
-	this._linePlot = this._createLinePlot();
 	this._addRoomToCanvas();
-	this._addCarToCanvas();
 	this._client.addMessageListener(this);
-	this._startTime = new Date().getTime();
 }
 
 Game.prototype.onArrayDataReceived = function(array) {
 	var currentTime = new Date().getTime();
-	var elapsedTime = (currentTime - this._currentStateStartTime)/1000;
+	var elapsedTime = (currentTime - this._experimentStartTime)/1000;
 
 	this._updateDriverSpeed(array);
 
@@ -43,14 +53,40 @@ Game.prototype._updateDriverSpeed = function(array) {
 	var gasPedalPosition = array[1];
 	var gasPedalForce = array[2];
 
-	var speed = this._convertToSpeed(brakeForce, gasPedalPosition, gasPedalForce);
-
+	var speed = this._convertToSpeed(gasPedalPosition, gasPedalForce);
 	this._driver.changeSpeed(speed);
+
+	var brakeIntensity = this._convertToIntensity(brakeForce);
+	this._driver.brake(brakeIntensity);
 }
 
-Game.prototype._convertToSpeed = function(brakeForce, gasPedalPosition, gasPedalForce) {
+Game.prototype._convertToSpeed = function(gasPedalPosition, gasPedalForce) {
 	// TODO
+	//var intensity = this._getScaledValue(gasPedalPosition, 3.29, 0.89);
+	//return intensity*100;
+	
+	return 5;
+}
+
+Game.prototype._convertToIntensity = function(brakeForce) {
+	// TODO
+	//var intensity = this._getScaledValue(brakeForce, 4.0, -0.33);
+	//return intensity;
+
 	return 0;
+}
+
+// returns a value between 0 and 1
+Game.prototype._getScaledValue = function(oldValue, oldMax, oldMin) {
+	var oldRange = oldMax - oldMin;
+	var newValue = (oldValue - oldMin)/oldRange;
+
+	if(newValue > 1)
+		return 1;
+	if(newValue < 0)
+		return 0;
+
+	return newValue;
 }
 
 Game.prototype.onStringDataReceived = function(string) {
@@ -58,6 +94,8 @@ Game.prototype.onStringDataReceived = function(string) {
 }
 
 Game.prototype.onDraw = function() {
+	if(this._state == GameState.CONSTRUCTED)
+		this._startMenu();
 	if(this._state == GameState.MENU)
 		this._drawMenu();
 	else if(this._state == GameState.EXPERIMENT) {
@@ -66,7 +104,7 @@ Game.prototype.onDraw = function() {
 	   	this._drawScene();
 	}
 	else if(this._state == GameState.RESULT)
-		this._drawResult();
+		this._result.draw();
 }
 
 Game.prototype._startMenu = function() {
@@ -77,31 +115,37 @@ Game.prototype._startMenu = function() {
 Game.prototype._startExperiment = function() {
 	this._state = GameState.EXPERIMENT;
 	this._currentStateStartTime = new Date().getTime();
+	this._experimentStartTime = new Date().getTime();
 }
 
 Game.prototype._startResult = function() {
 	this._state = GameState.RESULT;
 	this._currentStateStartTime = new Date().getTime();
+	this._result = new GameResult(this);
+	this._walls.removeFromCanvas();
+}
+
+Game.prototype._endGame = function() {
+	this._state = GameState.FINISHED;
+	this._currentStateStartTime = new Date().getTime();
 }
 
 Game.prototype._drawScene = function() {
+	this._positions.push(this._canvas.getPosition());
+	this._rotations.push(this._canvas.getRotation());
+
 	this._driver.driveForward();
 
-	if(this._experimentCompleted()) {
-		this._fillLinePlot();
-		this._linePlot.draw();
-		this._addLinePlotToCanvas();
-		this._linePlot.removeFromDOM();
-		this._linePlot = null;
+	if(this._experimentCompleted())
 		this._startResult();
-	}
 }
 
 Game.prototype._experimentCompleted = function() {
-	var currentTime = new Date().getTime();
-	var elapsedTime = (currentTime - this._currentStateStartTime)/1000;
+	//var currentTime = new Date().getTime();
+	//var elapsedTime = (currentTime - this._currentStateStartTime)/1000;
+	//return elapsedTime/60 > 0.3;
 
-	return elapsedTime/60 > 0.1;
+	return this._canvas.getPosition()[2] >= 450;
 }
 
 Game.prototype._drawMenu = function() {
@@ -111,56 +155,13 @@ Game.prototype._drawMenu = function() {
 	this._startExperiment();
 }
 
-Game.prototype._drawResult = function() {
-	console.log('draw result');
-}
-
-Game.prototype._fillLinePlot = function() {
-	for(var i = 0; i < this._linePlot.getNumDataSeries(); i++) {
-		for(var j = 0; j < this._samples.length; j++) {
-			var time = this._times[j];
-			var sample = this._samples[j][i];
-			this._linePlot.addSample(time, sample, i);
-		}
-	}
-}
-
-Game.prototype._addLinePlotToCanvas = function() {
-	var linePlotImage = this._linePlot.getImageURL();
-	var plot = this._createRectangle(1.25, 1, linePlotImage);
-	plot.translate(0, 0, -1.5);
-	plot.addToCanvas();
-}
-
 Game.prototype._addRoomToCanvas = function() {
-	var cylinder = this._createCyclinder(400, 400, 200, 8, "track2/sky_full.png");
+	var cylinder = this._createCyclinder(1000, 1000, 500, 12, "track2/sky_full.png");
 	cylinder.rotate(-Math.PI/2, 0, 0);
-	cylinder.translate(0, 160, 0);
+	cylinder.translate(0, 400, 0);
 	cylinder.addToCanvas();
 
-	var sky = this._createRectangle();
-}
-
-Game.prototype._addCarToCanvas = function() {
-	var car = new CompositeDrawable(this._canvas);
-	car.loadOBJMTL('obj/Model_Car/', 'Model.mtl', 'Model.obj', 'Model.png');
-	car.translate(0, -2.675, -20);
-	car.setColor([0, 1, 0]);
-
-	car.addToCanvas();
-}
-
-Game.prototype._createLinePlot = function() {
-	var linePlot = new LinePlot();
-	linePlot.hideVisibility();
-
-	linePlot.setNumDataSeries(3);
-	linePlot.setTitle("Simulated Data");
-	linePlot.setLegendNames(["Brake Force", "Gas Position", "Gas Force"]);
-	linePlot.setXAxisTitle("Time Passed (in seconds)");
-	linePlot.setYAxisTitle("Voltage");
-
-	return linePlot;
+	this._walls = cylinder;
 }
 
 Game.prototype._createCyclinder = function(width, height, depth, numSegments, image) {
@@ -243,19 +244,3 @@ Game.prototype._createWhiteText = function(string, height) {
 	
 	return text;
 }
-
-/*
-var car = null;
-setInterval(animate, 5);
-var reachedMax = false;
-
-function animate() {
-	if(car != null) {
-		if(car.getPosition()[2] <= -150) {
-			reachedMax = true;
-			return;
-		}
-		car.translate(0, 0, -0.06);
-	}
-}
-*/

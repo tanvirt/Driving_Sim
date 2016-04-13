@@ -5,7 +5,16 @@ function Driver(canvas) {
 	this._speed = 0;
 }
 
-Driver.prototype.changeSpeed = function(targetSpeed) { this._speed = (1 - 0.0001)*this._speed + 0.0001*targetSpeed; }
+Driver.prototype.getSpeed = function() { return this._speed; }
+
+Driver.prototype.changeSpeed = function(targetSpeed) { 
+	var weight = 0.0001;
+	this._speed = (1 - weight)*this._speed + weight*targetSpeed; 
+}
+
+Driver.prototype.brake = function(intensity) {
+	this._speed = (1 - intensity)*this._speed;
+}
 
 Driver.prototype.driveForward = function() {
 	var rotation = this._canvas.getRotation();
