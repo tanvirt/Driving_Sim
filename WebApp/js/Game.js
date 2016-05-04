@@ -53,27 +53,25 @@ Game.prototype._updateDriverSpeed = function(array) {
 	var gasPedalPosition = array[1];
 	var gasPedalForce = array[2];
 
-	var speed = this._convertToSpeed(gasPedalPosition, gasPedalForce);
-	this._driver.changeSpeed(speed);
+	var speedIntensity = this._convertToSpeedIntensity(gasPedalPosition, gasPedalForce);
+	this._driver.changeSpeed(speedIntensity);
 
-	var brakeIntensity = this._convertToIntensity(brakeForce);
+	var brakeIntensity = this._convertToBrakeIntensity(brakeForce);
 	this._driver.brake(brakeIntensity);
 }
 
-Game.prototype._convertToSpeed = function(gasPedalPosition, gasPedalForce) {
+Game.prototype._convertToSpeedIntensity = function(gasPedalPosition, gasPedalForce) {
 	// TODO
-	//var intensity = this._getScaledValue(gasPedalPosition, 3.29, 0.89);
-	//return intensity*100;
-	
-	return 5;
+	var intensity = 1 - this._getScaledValue(gasPedalPosition, 3.28, 0.89);
+	return intensity;
 }
 
-Game.prototype._convertToIntensity = function(brakeForce) {
+Game.prototype._convertToBrakeIntensity = function(brakeForce) {
 	// TODO
-	//var intensity = this._getScaledValue(brakeForce, 4.0, -0.33);
-	//return intensity;
+	var intensity = this._getScaledValue(brakeForce, 4.0, -0.20);
 
 	return 0;
+	//return intensity;
 }
 
 // returns a value between 0 and 1
@@ -96,7 +94,7 @@ Game.prototype.onStringDataReceived = function(string) {
 Game.prototype.onDraw = function() {
 	if(this._state == GameState.CONSTRUCTED)
 		this._startMenu();
-	if(this._state == GameState.MENU)
+	else if(this._state == GameState.MENU)
 		this._drawMenu();
 	else if(this._state == GameState.EXPERIMENT) {
 		if(this._client.connectionEstablished())
@@ -162,6 +160,13 @@ Game.prototype._addRoomToCanvas = function() {
 	cylinder.addToCanvas();
 
 	this._walls = cylinder;
+
+	var square = this._createRectangle(1000, 1000, "track2/sky_roof.png");
+	square.rotate(-Math.PI/2, 0, 0);
+	square.translate(0, 400, 0);
+	square.addToCanvas();
+
+	this._roof = square;
 }
 
 Game.prototype._createCyclinder = function(width, height, depth, numSegments, image) {
@@ -216,13 +221,13 @@ Game.prototype._createRectangle = function(width, height, image) {
    	var triangles = [0,2,1,	1,2,3];
    	var uv = [0,1, 1,1, 0,0, 1,0];
 
-	var square = new DrawableObject(this._canvas);
-	square.setXYZ(xyz);
-	square.setTriangles(triangles);
-	square.setUV(uv);
-	square.setTexture(image);
+	var rectangle = new DrawableObject(this._canvas);
+	rectangle.setXYZ(xyz);
+	rectangle.setTriangles(triangles);
+	rectangle.setUV(uv);
+	rectangle.setTexture(image);
 
-	return square;
+	return rectangle;
 }
 
 Game.prototype._createBlackText = function(string, height) {

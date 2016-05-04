@@ -16,6 +16,10 @@ function LinePlot(containerId) {
 	this._initialize();
 }
 
+LinePlot.prototype.getDataPoints = function() {
+	return this._dataPoints;
+}
+
 LinePlot.prototype.getDivContainer = function() {
 	return document.getElementById(this._containerId);
 }

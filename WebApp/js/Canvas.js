@@ -8,15 +8,15 @@ function Canvas(client, elementId) {
     
     this._drawableList = new DrawableList(this.getCamera());
     this._room = null;
-
+    
     this._rotation = [0, 0, 0];
     this._translation = [0, 0, 0];
     
-    //this._translationSpeed = 0.1;
-    //this._rotationSpeed = 0.5;
+    this._translationSpeed = 0.1;
+    this._rotationSpeed = 0.5;
     
-    //this._currentlyPressedKeys = {};
-
+    this._currentlyPressedKeys = {};
+    
     this._listeners = [];
     
     this.start();
@@ -93,7 +93,7 @@ Canvas.prototype.setRotation = function(x, y, z) {
 }
 
 Canvas.prototype._updateCamera = function() {
-    //this.handleKeys();
+    this.handleKeys();
     this.getCamera().rotateX(this._rotation[0]);
     this.getCamera().rotateY(this._rotation[1]);
     this.getCamera().rotateZ(this._rotation[2]);
@@ -139,7 +139,7 @@ Canvas.prototype._requestFullScreen = function(element) {
             wscript.SendKeys("{F11}");
     }
 }
-/*
+
 Canvas.prototype.handleKeyUp = function(event) {
     event.preventDefault();
     this._currentlyPressedKeys[event.keyCode] = false;
@@ -237,4 +237,3 @@ Canvas.prototype._rightArrowKeyIsPressed = function() {
 Canvas.prototype._downArrowKeyIsPressed = function() {
     return this._currentlyPressedKeys[40] == true;
 }
-*/

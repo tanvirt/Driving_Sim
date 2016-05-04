@@ -1,5 +1,5 @@
 function CompositeDrawable(canvas) {
-	if(arguments < 1) return;
+	if(arguments.length < 1) return;
 	DrawableObject.call(this, canvas);
 	
 	this._canvas = canvas;

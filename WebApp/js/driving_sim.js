@@ -37,6 +37,7 @@ var my_canvas = new Canvas(my_client);
 
 var composition = new GLImageComposition(my_canvas);
 composition.filename = "http://localhost/webapps/Driving_Sim/track2";
+//composition.filename = "http://www.cise.ufl.edu/~talukder/driving_sim/track2";
 composition.instructions = new Array();
 composition.textures = new Array();
 
@@ -61,7 +62,7 @@ document.body.onkeypress = function(event) {
 	else if(event.keyCode === 52)
 		my_canvas.useSideBySideProjector();
 }
-/*
+
 document.onkeydown = function(event) {
 	my_canvas.handleKeyDown(event);
 };
@@ -69,4 +70,3 @@ document.onkeydown = function(event) {
 document.onkeyup = function(event) {
 	my_canvas.handleKeyUp(event);
 };
-*/
